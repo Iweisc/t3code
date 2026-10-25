@@ -264,7 +264,7 @@ it.layer(NodeServices.layer)("CliTokenManager.deviceAuthorizationLogin", (it) =>
       ).pipe(Effect.provide(layerDeviceFlow(server)), provideTestEnv, Effect.forkChild);
 
       yield* TestClock.adjust(Duration.seconds(10));
-      const { token, identity } = yield* Fiber.join(fiber);
+      const token = yield* Fiber.join(fiber);
 
       assert.deepEqual(prompts, [
         {
@@ -276,8 +276,7 @@ it.layer(NodeServices.layer)("CliTokenManager.deviceAuthorizationLogin", (it) =>
       ]);
       assert.equal(token.accessToken, "access-token-1");
       assert.equal(token.refreshToken, "refresh-token-1");
-      assert.equal(token.identity, "theo@example.test");
-      assert.equal(identity, "theo@example.test");
+      assert.notInclude(JSON.stringify(token), "theo@example.test");
 
       const authorization = server.requests[0]!;
       assert.equal(authorization.url, "https://clerk.example.test/oauth/device_authorization");
