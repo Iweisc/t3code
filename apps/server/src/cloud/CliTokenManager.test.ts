@@ -106,8 +106,14 @@ const layerDeviceFlow = (server: DeviceFlowServer) =>
 const tokenRequests = (requests: ReadonlyArray<RecordedTokenRequest>) =>
   requests.filter((request) => request.url.endsWith("/oauth/token"));
 
+// Tokens stored before the CLI stopped tracking the account email still carry it.
 const expiredStoredToken = new TextEncoder().encode(
-  JSON.stringify({ accessToken: "expired", refreshToken: "refresh-token-1", expiresAtEpochMs: 0 }),
+  JSON.stringify({
+    accessToken: "expired",
+    refreshToken: "refresh-token-1",
+    expiresAtEpochMs: 0,
+    identity: "theo@example.test",
+  }),
 );
 
 const provideRefreshManager = (
@@ -202,6 +208,7 @@ it.effect(
         const token = Option.getOrThrow(yield* Fiber.join(reader));
         assert.equal(token.refreshToken, "rotated-refresh");
         assert.equal(token.accessToken, "rotated-access");
+        assert.notInclude(new TextDecoder().decode(stored), "theo@example.test");
       }).pipe(
         Effect.ensuring(Deferred.succeed(releaseRequest, undefined)),
         Effect.ensuring(Deferred.succeed(releasePersist, undefined)),
