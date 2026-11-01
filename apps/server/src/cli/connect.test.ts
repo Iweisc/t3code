@@ -11,7 +11,8 @@ import * as Path from "effect/Path";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/cli";
 
-import { acquireRelayClientForLink, connectCommand } from "./connect.ts";
+import { acquireRelayClientForLink } from "./connect.ts";
+import { connectCommand } from "./up.ts";
 
 const managedExecutable = {
   status: "available",
